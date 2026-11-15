@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>megacubo</id>
+    <version>17.8.0</version>
+    <title>Megacubo</title>
+    <authors>Edenware</authors>
+    <owners>Edenware</owners>
+    <projectUrl>https://megacubo.tv/</projectUrl>
+    <packageSourceUrl>https://github.com/EdenwareApps/choco-megacubo</packageSourceUrl>
+    <docsUrl>https://megacubo.tv/</docsUrl>
+    <licenseUrl>https://github.com/EdenwareApps/megacubo/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/EdenwareApps/megacubo</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/EdenwareApps/megacubo/issues</bugTrackerUrl>
+    <tags>megacubo iptv player m3u epg streaming video freeware</tags>
+    <summary>Open-source IPTV player for live TV, M3U playlists and EPG</summary>
+    <description>Megacubo is an open-source (GPL-3.0) IPTV player for Windows. It plays M3U playlists and Xtream codes lists, loads EPG guides, records streams and runs a miniplayer while you work.
+
+This package installs the official portable build published by the developer (no bundled ad/telemetry SDK, no installer stub) and creates a `megacubo` shim plus a Start Menu shortcut.</description>
+    <releaseNotes>https://github.com/EdenwareApps/megacubo/releases/tag/v17.8.0</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
