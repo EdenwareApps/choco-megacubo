@@ -17,7 +17,7 @@
     <summary>Open-source IPTV player for live TV, M3U playlists and EPG</summary>
     <description>Megacubo is an open-source (GPL-3.0) IPTV player for Windows. It plays M3U playlists and Xtream codes lists, loads EPG guides, records streams and runs a miniplayer while you work.
 
-This package installs the official portable build published by the developer (no bundled ad/telemetry SDK, no installer stub) and creates a `megacubo` shim plus a Start Menu shortcut.</description>
+This package installs the official signed Inno Setup build published by the developer (offline payload, no bundled ad/telemetry SDK, no web installer stub) and creates a `megacubo` command shim. The setup registers Start Menu and desktop shortcuts plus the mega:// protocol.</description>
     <releaseNotes>https://github.com/EdenwareApps/megacubo/releases/tag/v17.8.0</releaseNotes>
   </metadata>
   <files>

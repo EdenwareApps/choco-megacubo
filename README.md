@@ -1,16 +1,25 @@
-# Megacubo — Chocolatey package
+# Megacubo - Chocolatey package
 
 Community package for [Megacubo](https://megacubo.tv), an open-source (GPL-3.0) IPTV player for Windows.
 
-The package does **not** wrap the web downloader (`megacubo.tv/bin/*.exe`, a 3.3 MB NSIS stub that fetches the
-payload and bundles the Bright SDK). It installs the official **portable** archive published by the developer,
-which contains `megacubo.exe` at its root and no third-party SDK binaries:
+The package installs the official **Inno Setup installer** published on the GitHub release and signed by
+EDENWARE. It is not the web downloader (`megacubo.tv/bin/*.exe`, a small stub that fetches the payload and
+bundles the Bright SDK): the release Setup ships the whole application offline, with no Bright SDK binaries
+(`lum_sdk*`, `net_updater*`) and without the old `megacubo-debug.cmd`.
 
-- `https://megacubo.tv/bin/portable/Megacubo_<version>_x64.7z`
-- `https://megacubo.tv/bin/portable/Megacubo_<version>_x86.7z`
-- `https://megacubo.tv/bin/portable/Megacubo_<version>_arm64.7z`
+- `https://github.com/EdenwareApps/Megacubo/releases/download/v<version>/Megacubo_<version>_win_x64.exe`
+- `https://github.com/EdenwareApps/Megacubo/releases/download/v<version>/Megacubo_<version>_win_x86.exe`
+- `https://github.com/EdenwareApps/Megacubo/releases/download/v<version>/Megacubo_<version>_win_arm64.exe`
 
-Each archive has a sibling `.sha256` file.
+## Install behaviour
+
+- `Install-ChocolateyPackage -fileType exe` runs the Setup with
+  `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /ALLUSERS`, so the application lands in
+  `C:\Program Files\Megacubo`. Elevation comes from that switch alone: the installer's default mode is
+  per-user (`PrivilegesRequired=lowest`), with no UAC prompt.
+- The installer registers the `mega://` protocol plus Start Menu and desktop shortcuts.
+- `Install-BinFile` adds the `megacubo` shim. Chocolatey's auto uninstaller runs the Inno uninstaller on
+  removal and `chocolateyuninstall.ps1` removes the shim.
 
 ## Build
 
@@ -18,8 +27,8 @@ Each archive has a sibling `.sha256` file.
 choco pack
 ```
 
-Produces `megacubo.<version>.nupkg`, which contains only `tools\chocolateyinstall.ps1` and
-`tools\chocolateyuninstall.ps1` — the payload is downloaded at install time from the official server.
+Produces `megacubo.<version>.nupkg`, which contains only the scripts in `tools\` - the payload is downloaded
+at install time from the official release.
 
 ## Push to the community feed
 
@@ -32,7 +41,7 @@ choco push megacubo.17.8.0.nupkg --source https://push.chocolatey.org/
 
 ## Bumping the version
 
-1. Publish the new portable archives on the server (see `docs/GSA_AUTO_SOFTSUBMIT_CONTROLE.md`, §10.10.4).
+1. Publish the new Setup installers on the GitHub release.
 2. Update `version` in `megacubo.nuspec`.
 3. Add the three new `"<version>-<arch>"` entries to `$checksums` in `tools\chocolateyinstall.ps1`.
 4. `choco pack` and push.
@@ -40,10 +49,15 @@ choco push megacubo.17.8.0.nupkg --source https://push.chocolatey.org/
 The install script **fails closed**: if the running version has no registered checksum, it throws instead of
 installing an unverified download.
 
-## Verified
+## Verified (17.8.0)
 
-- `Get-ChocolateyWebFile` + `Get-ChocolateyUnzip` run against `17.8.0_x64`: download 138.78 MB, hash match,
-  extraction produces `megacubo.exe` (245 MB) with no `lum_sdk*`/`net_updater*` files.
-- `choco pack` succeeds; nuspec validates; both scripts parse without syntax errors.
-- Full `choco install` (shim + Start Menu shortcut) needs elevation, so it was not run here; `Install-BinFile`
-  was reached and only failed writing to `C:\ProgramData\chocolatey\bin` for lack of administrator rights.
+- The three Setup installers were rebuilt, signed with the EDENWARE code-signing certificate
+  (Authenticode status `Valid`) and uploaded to the GitHub release; the hashes above match the published
+  files.
+- The silent path used by Chocolatey was exercised by running the x86 Setup directly with `/SILENT
+  /SUPPRESSMSGBOXES /NORESTART`: exit code 0, 1624 files installed, zero `lum_sdk*`/`net_updater*`, no
+  `megacubo-debug.cmd`, ARP entry `{D95E0592-5CD5-4D5F-A382-3A00BC2F6196}_is1`, `Software\Classes\mega`
+  registered, and `/VERYSILENT` uninstall removed the directory, shortcuts and protocol key.
+- `choco pack` succeeds and the nuspec validates.
+- The elevated `/ALLUSERS` run (what Chocolatey does) was not executed here because it needs UAC; it is the
+  documented Inno switch for `PrivilegesRequiredOverridesAllowed=commandline`.

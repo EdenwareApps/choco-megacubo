@@ -1,8 +1,5 @@
 $ErrorActionPreference = 'Stop'
 
+# The application itself is removed by Chocolatey's auto uninstaller, which runs
+# the Inno Setup uninstaller silently.
 Uninstall-BinFile -Name 'megacubo'
-
-$shortcut = "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Megacubo.lnk"
-if (Test-Path $shortcut) {
-    Remove-Item $shortcut -Force
-}

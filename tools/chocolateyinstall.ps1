@@ -1,6 +1,5 @@
 $ErrorActionPreference = 'Stop'
 
-$toolsDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $version = $env:ChocolateyPackageVersion
 
 $architecture = switch ($env:PROCESSOR_ARCHITECTURE) {
@@ -9,11 +8,11 @@ $architecture = switch ($env:PROCESSOR_ARCHITECTURE) {
     default { 'x86' }
 }
 
-# Checksums of the official portable archives; keep in sync when bumping the version.
+# SHA256 of the official Inno Setup installers published on the GitHub release.
 $checksums = @{
-    '17.8.0-arm64' = 'fc504e55938fdec6828ad6dfdb6f060eedf889c9b37edcbec98eb9d5d457cc39'
-    '17.8.0-x64'   = '89ba8fd01c4106a8ee7d14a9ada613307f14e3a07045e02aa180fc9bcce41e88'
-    '17.8.0-x86'   = '7cfaf80f8360fdbf5c67cbee22801affe4927eebe80b7952b31ce6468df65477'
+    '17.8.0-arm64' = 'a2a3e85eaac20f75c28b85cc8b917043b789be4cdd93123c09c551567f143e1e'
+    '17.8.0-x64'   = '0543a27a73bf609580912fad2f61ac7247b3bb6dc1b94589af42eef410939dd0'
+    '17.8.0-x86'   = '2c4621c0dc312a5eacfbccec390aa9dd8cd17fa106db7f99709d47cf70ba4b23c'
 }
 
 $key = "$version-$architecture"
@@ -21,15 +20,24 @@ if (-not $checksums.ContainsKey($key)) {
     throw "No checksum registered for $key - update tools\chocolateyinstall.ps1 before pushing this version."
 }
 
-$url = "https://megacubo.tv/bin/portable/Megacubo_${version}_${architecture}.7z"
-$archive = Join-Path $toolsDir 'megacubo.7z'
+$url = "https://github.com/EdenwareApps/Megacubo/releases/download/v${version}/Megacubo_${version}_win_${architecture}.exe"
 
-Get-ChocolateyWebFile -PackageName 'megacubo' -FileFullPath $archive -Url $url `
-    -Checksum $checksums[$key] -ChecksumType 'sha256'
+$packageArgs = @{
+    packageName    = 'megacubo'
+    fileType       = 'exe'
+    url            = $url
+    checksum       = $checksums[$key]
+    checksumType   = 'sha256'
+    silentArgs     = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /ALLUSERS'
+    validExitCodes = @(0)
+}
 
-Get-ChocolateyUnzip -FileFullPath $archive -Destination $toolsDir -PackageName 'megacubo'
-Remove-Item $archive -Force
+Install-ChocolateyPackage @packageArgs
 
-Install-BinFile -Name 'megacubo' -Path (Join-Path $toolsDir 'megacubo.exe')
-Install-ChocolateyShortcut -ShortcutFilePath "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Megacubo.lnk" `
-    -TargetPath (Join-Path $toolsDir 'megacubo.exe') -WorkingDirectory $toolsDir
+$programFiles = $env:ProgramW6432
+if (-not $programFiles) { $programFiles = $env:ProgramFiles }
+
+$exe = Join-Path (Join-Path $programFiles 'Megacubo') 'megacubo.exe'
+if (Test-Path $exe) {
+    Install-BinFile -Name 'megacubo' -Path $exe
+}
