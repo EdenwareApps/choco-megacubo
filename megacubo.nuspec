@@ -7,6 +7,7 @@
     <authors>Edenware</authors>
     <owners>Edenware</owners>
     <projectUrl>https://megacubo.tv/</projectUrl>
+    <iconUrl>https://megacubo.tv/icon.png</iconUrl>
     <packageSourceUrl>https://github.com/EdenwareApps/choco-megacubo</packageSourceUrl>
     <docsUrl>https://megacubo.tv/</docsUrl>
     <licenseUrl>https://github.com/EdenwareApps/megacubo/blob/master/LICENSE</licenseUrl>
